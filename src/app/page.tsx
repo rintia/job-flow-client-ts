@@ -1,18 +1,25 @@
+import CTA from "@/components/home/CTA";
+import Categories from "@/components/home/Categories";
+import FAQ from "@/components/home/FAQ";
+import FeaturedJobs from "@/components/home/FeaturedJobs";
+import Hero from "@/components/home/Hero";
+import HowItWorks from "@/components/home/HowItWorks";
+import Stats from "@/components/home/Stats";
+import Testimonials from "@/components/home/Testimonials";
+import WhyChooseJobFlow from "@/components/home/WhyChooseUs";
+
 export default function HomePage() {
   return (
-    <main className="py-20">
-      <section className="text-center">
-        <h1 className="text-5xl font-bold">
-          Find the right talent.
-          <br />
-          Get the job done.
-        </h1>
-
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-          JobFlow connects employers with talented freelancers through a
-          modern, secure, and easy-to-use platform.
-        </p>
-      </section>
-    </main>
+   <>
+    <Hero />
+    <Stats />
+    <FeaturedJobs></FeaturedJobs>
+    <Categories/>
+    <HowItWorks/>
+    <WhyChooseJobFlow/>
+    <Testimonials/>
+    <FAQ/>
+    <CTA/>
+   </>
   );
 }
