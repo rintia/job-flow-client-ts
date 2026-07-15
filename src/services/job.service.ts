@@ -16,9 +16,21 @@ export const jobService = {
     return data;
   },
 
-  getAllJobs: async () => {
+getAllJobs: async (
+  search = "",
+  category = "",
+  minPrice = ""
+) => {
+  const params = new URLSearchParams();
+
+  if (search) params.append("search", search);
+
+  if (category) params.append("category", category);
+
+  if (minPrice) params.append("minPrice", minPrice);
+
   const { data } = await axios.get(
-    `${API}/jobs`
+    `${API}/jobs?${params.toString()}`
   );
 
   return data.data;
