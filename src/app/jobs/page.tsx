@@ -1,9 +1,5 @@
-import React from 'react';
+import JobsList from "@/components/jobs/JobsList";
 
-const JobsPage = () => {
-    return (
-        <h1>Jobs</h1>
-    );
-};
-
-export default JobsPage;
+export default function JobsPage() {
+  return <JobsList/>
+}

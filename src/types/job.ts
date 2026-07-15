@@ -1,32 +1,35 @@
 export interface Job {
-  _id?: string;
+    _id?: string;
 
-  title: string;
-  company: string;
-  location: string;
-  category: string;
+    title: string;
+    company: string;
+    location: string;
+    category: string;
 
-  employmentType:
+    employmentType:
     | "Full-time"
     | "Part-time"
     | "Remote"
     | "Internship";
 
-  salary: number;
+    minPrice: number;
+    maxPrice: number;
 
-  deadline: string;
+    deadline: string;
 
-  description: string;
+    description: string;
 
-  requirements: string;
+    requirements: string;
 
-  companyLogo?: string;
+    companyLogo?: string;
 
-  postedBy: string;
+    postedBy: string;
 
-  postedByName: string;
+    postedByName: string;
 
-  status: "active" | "closed";
+     email: string;
+     
+    status: "active" | "closed";
 
-  createdAt: string;
+    createdAt: string;
 }

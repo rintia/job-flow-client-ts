@@ -1,5 +1,9 @@
 "use client";
-
+interface AddJobFormProps {
+    isEdit?: boolean;
+    jobId?: string;
+}
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,7 +17,10 @@ import {
 import { jobService } from "@/services/job.service";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
-export default function AddJobForm() {
+export default function AddJobForm({
+    isEdit = false,
+    jobId,
+}: AddJobFormProps) {
     const categories = [
         "Web Development",
         "Mobile Development",
@@ -42,243 +49,282 @@ export default function AddJobForm() {
         resolver: zodResolver(jobSchema),
     });
 
-    const onSubmit = async (data: JobFormData) => {
-        try {
-            
-            const payload = {
-                ...data,
-                email: user?.email,
-                clientName: user?.name,
-                status: "active",
-                createdAt: new Date(),
-            };
+    useEffect(() => {
+        if (!isEdit || !jobId) return;
+
+        const fetchJob = async () => {
+            try {
+                const job = await jobService.getJobById(jobId);
+
+                reset({
+                    title: job.title,
+                    company: job.company,
+                    companyLogo: job.companyLogo,
+                    location: job.location,
+                    category: job.category,
+                    employmentType: job.employmentType,
+                    minPrice: job.minPrice,
+                    maxPrice: job.maxPrice,
+                    deadline: job.deadline,
+                    requirements: job.requirements,
+                    description: job.description,
+                });
+            } catch (error) {
+                console.error(error);
+                toast.error("Failed to load job");
+            }
+        };
+
+        fetchJob();
+    }, [isEdit, jobId, reset]);
+
+const onSubmit = async (data: JobFormData) => {
+    try {
+
+        const payload = {
+            ...data,
+            email: user?.email,
+            clientName: user?.name,
+            status: "active",
+            createdAt: new Date(),
+        };
+        if (isEdit && jobId) {
+            await jobService.updateJob(jobId, payload);
+
+            toast.success("Job updated successfully!");
+        } else {
             await jobService.createJob(payload);
 
             toast.success("Job posted successfully!");
-
-            reset();
-
-            router.push("/dashboard/my-jobs");
-        } catch (error) {
-            console.error(error);
-
-            toast.error("Failed to post job");
         }
-    };
 
-    return (
-        <div className="mx-auto max-w-5xl rounded-2xl bg-white p-8 shadow-sm">
-            <h1 className="mb-2 text-3xl font-bold">
-                Post a New Job
-            </h1>
+        reset();
 
-            <p className="mb-8 text-slate-500">
-                Fill in the job details below.
-            </p>
+        router.push("/dashboard/my-jobs");
+    } catch (error) {
+        console.error(error);
 
-            <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="space-y-8"
-            >
-                {/* ================== BASIC INFO ================== */}
+        toast.error("Failed to post job");
+    }
+};
 
-                <div>
-                    <h2 className="mb-5 text-lg font-semibold">
-                        Job Information
-                    </h2>
+return (
+    <div className="mx-auto max-w-5xl rounded-2xl bg-white p-8 shadow-sm">
+        <h1 className="mb-2 text-3xl font-bold">
+            Post a New Job
+        </h1>
 
-                    <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                        {/* Job Title */}
+        <p className="mb-8 text-slate-500">
+            Fill in the job details below.
+        </p>
 
-                        <InputField
-                            label="Job Title"
-                            placeholder="Frontend Developer"
-                            register={register("title")}
-                            error={errors.title?.message}
-                        />
+        <form
+            onSubmit={handleSubmit(onSubmit)}
+            className="space-y-8"
+        >
+            {/* ================== BASIC INFO ================== */}
 
-                        {/* Company */}
+            <div>
+                <h2 className="mb-5 text-lg font-semibold">
+                    Job Information
+                </h2>
 
-                        <InputField
-                            label="Company"
-                            placeholder="Google"
-                            register={register("company")}
-                            error={errors.company?.message}
-                        />
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    {/* Job Title */}
 
-                        {/* Logo */}
+                    <InputField
+                        label="Job Title"
+                        placeholder="Frontend Developer"
+                        register={register("title")}
+                        error={errors.title?.message}
+                    />
 
-                        <InputField
-                            label="Company Logo URL"
-                            placeholder="https://..."
-                            register={register("companyLogo")}
-                            error={errors.companyLogo?.message}
-                        />
+                    {/* Company */}
 
-                        {/* Location */}
+                    <InputField
+                        label="Company"
+                        placeholder="Google"
+                        register={register("company")}
+                        error={errors.company?.message}
+                    />
 
-                        <InputField
-                            label="Location"
-                            placeholder="Dhaka"
-                            register={register("location")}
-                            error={errors.location?.message}
-                        />
+                    {/* Logo */}
 
-                        {/* Category */}
+                    <InputField
+                        label="Company Logo URL"
+                        placeholder="https://..."
+                        register={register("companyLogo")}
+                        error={errors.companyLogo?.message}
+                    />
 
-                        <div>
-                            <label className="mb-2 block font-medium">
-                                Category
-                            </label>
+                    {/* Location */}
 
-                            <select
-                                {...register("category")}
-                                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-600"
-                            >
-                                <option value="">Select Category</option>
+                    <InputField
+                        label="Location"
+                        placeholder="Dhaka"
+                        register={register("location")}
+                        error={errors.location?.message}
+                    />
 
-                                {categories.map((category) => (
-                                    <option
-                                        key={category}
-                                        value={category}
-                                    >
-                                        {category}
-                                    </option>
-                                ))}
-                            </select>
+                    {/* Category */}
 
-                            {errors.category && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.category.message}
-                                </p>
-                            )}
-                        </div>
+                    <div>
+                        <label className="mb-2 block font-medium">
+                            Category
+                        </label>
 
-                        {/* Minimum Price */}
+                        <select
+                            {...register("category")}
+                            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-600"
+                        >
+                            <option value="">Select Category</option>
 
-                        <InputField
-                            label="Minimum Budget"
-                            type="number"
-                            placeholder="10000"
-                            register={register("minPrice", {
-                                valueAsNumber: true,
-                            })}
-                            error={errors.minPrice?.message}
-                        />
-
-                        {/* Maximum Price */}
-
-                        <InputField
-                            label="Maximum Budget"
-                            type="number"
-                            placeholder="50000"
-                            register={register("maxPrice", {
-                                valueAsNumber: true,
-                            })}
-                            error={errors.maxPrice?.message}
-                        />
-
-                        {/* Employment */}
-
-                        <div>
-                            <label className="mb-2 block font-medium">
-                                Employment Type
-                            </label>
-
-                            <select
-                                {...register("employmentType")}
-                                className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-600"
-                            >
-                                <option value="">Select Type</option>
-
-                                <option value="Full-time">
-                                    Full-time
+                            {categories.map((category) => (
+                                <option
+                                    key={category}
+                                    value={category}
+                                >
+                                    {category}
                                 </option>
+                            ))}
+                        </select>
 
-                                <option value="Part-time">
-                                    Part-time
-                                </option>
-
-                                <option value="Remote">
-                                    Remote
-                                </option>
-
-                                <option value="Internship">
-                                    Internship
-                                </option>
-                            </select>
-
-                            {errors.employmentType && (
-                                <p className="mt-1 text-sm text-red-500">
-                                    {errors.employmentType.message}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* Deadline */}
-
-                        <InputField
-                            label="Application Deadline"
-                            type="date"
-                            register={register("deadline")}
-                            error={errors.deadline?.message}
-                        />
+                        {errors.category && (
+                            <p className="mt-1 text-sm text-red-500">
+                                {errors.category.message}
+                            </p>
+                        )}
                     </div>
-                </div>
 
-                {/* ================= REQUIREMENTS ================= */}
+                    {/* Minimum Price */}
 
-                <div>
-                    <label className="mb-2 block font-medium">
-                        Requirements
-                    </label>
-
-                    <textarea
-                        rows={5}
-                        {...register("requirements")}
-                        className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-600"
+                    <InputField
+                        label="Minimum Budget"
+                        type="number"
+                        placeholder="10000"
+                        register={register("minPrice", {
+                            valueAsNumber: true,
+                        })}
+                        error={errors.minPrice?.message}
                     />
 
-                    {errors.requirements && (
-                        <p className="mt-1 text-sm text-red-500">
-                            {errors.requirements.message}
-                        </p>
-                    )}
-                </div>
+                    {/* Maximum Price */}
 
-                {/* ================= DESCRIPTION ================= */}
-
-                <div>
-                    <label className="mb-2 block font-medium">
-                        Description
-                    </label>
-
-                    <textarea
-                        rows={7}
-                        {...register("description")}
-                        className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-600"
+                    <InputField
+                        label="Maximum Budget"
+                        type="number"
+                        placeholder="50000"
+                        register={register("maxPrice", {
+                            valueAsNumber: true,
+                        })}
+                        error={errors.maxPrice?.message}
                     />
 
-                    {errors.description && (
-                        <p className="mt-1 text-sm text-red-500">
-                            {errors.description.message}
-                        </p>
-                    )}
+                    {/* Employment */}
+
+                    <div>
+                        <label className="mb-2 block font-medium">
+                            Employment Type
+                        </label>
+
+                        <select
+                            {...register("employmentType")}
+                            className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-600"
+                        >
+                            <option value="">Select Type</option>
+
+                            <option value="Full-time">
+                                Full-time
+                            </option>
+
+                            <option value="Part-time">
+                                Part-time
+                            </option>
+
+                            <option value="Remote">
+                                Remote
+                            </option>
+
+                            <option value="Internship">
+                                Internship
+                            </option>
+                        </select>
+
+                        {errors.employmentType && (
+                            <p className="mt-1 text-sm text-red-500">
+                                {errors.employmentType.message}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* Deadline */}
+
+                    <InputField
+                        label="Application Deadline"
+                        type="date"
+                        register={register("deadline")}
+                        error={errors.deadline?.message}
+                    />
                 </div>
+            </div>
 
-                {/* ================= BUTTON ================= */}
+            {/* ================= REQUIREMENTS ================= */}
 
-                <button
-                    disabled={isSubmitting}
-                    className="w-full rounded-xl bg-blue-600 py-4 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                    {isSubmitting
-                        ? "Publishing..."
+            <div>
+                <label className="mb-2 block font-medium">
+                    Requirements
+                </label>
+
+                <textarea
+                    rows={5}
+                    {...register("requirements")}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-600"
+                />
+
+                {errors.requirements && (
+                    <p className="mt-1 text-sm text-red-500">
+                        {errors.requirements.message}
+                    </p>
+                )}
+            </div>
+
+            {/* ================= DESCRIPTION ================= */}
+
+            <div>
+                <label className="mb-2 block font-medium">
+                    Description
+                </label>
+
+                <textarea
+                    rows={7}
+                    {...register("description")}
+                    className="w-full rounded-xl border border-slate-300 px-4 py-3 outline-none focus:border-blue-600"
+                />
+
+                {errors.description && (
+                    <p className="mt-1 text-sm text-red-500">
+                        {errors.description.message}
+                    </p>
+                )}
+            </div>
+
+            {/* ================= BUTTON ================= */}
+
+            <button
+                disabled={isSubmitting}
+                className="w-full rounded-xl bg-blue-600 py-4 font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+            >
+                {isSubmitting
+                    ? isEdit
+                        ? "Updating..."
+                        : "Publishing..."
+                    : isEdit
+                        ? "Update Job"
                         : "Publish Job"}
-                </button>
-            </form>
-        </div>
-    );
+            </button>
+        </form>
+    </div>
+);
 }
 
 interface InputProps {
