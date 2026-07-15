@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import AuthCard from "@/components/auth/AuthCard";
-import { registerUser } from "@/services/auth.service";
+import { authService } from "@/services/auth.service";
 import { toast } from "sonner";
 
 interface RegisterFormData {
@@ -23,24 +23,24 @@ export default function RegisterPage() {
   const onSubmit = async (data: RegisterFormData) => {
     console.log(data);
     if (data.password !== data.confirmPassword) {
-        toast.error("Passwords do not match.");
-        return;
-      }
-      
-      try {
-        const result = await registerUser({
-          name: data.name,
-          email: data.email,
-          password: data.password,
-        });
-    
-        console.log(result);
-    
-        toast.success("Account created successfully!");
-      } catch (error) {
-        console.error(error);
-        toast.error("Registration failed.");
-      }
+      toast.error("Passwords do not match.");
+      return;
+    }
+
+    try {
+      const result = await authService.signUp({
+        name: data.name,
+        email: data.email,
+        password: data.password
+      })
+
+      console.log(result);
+
+      toast.success("Account created successfully!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Registration failed.");
+    }
   };
 
   return (
