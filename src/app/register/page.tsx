@@ -5,6 +5,9 @@ import { useForm } from "react-hook-form";
 import AuthCard from "@/components/auth/AuthCard";
 import { authService } from "@/services/auth.service";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
+
+
 
 interface RegisterFormData {
   name: string;
@@ -14,6 +17,7 @@ interface RegisterFormData {
 }
 
 export default function RegisterPage() {
+  const router = useRouter();
   const {
     register,
     handleSubmit,
@@ -37,6 +41,7 @@ export default function RegisterPage() {
       console.log(result);
 
       toast.success("Account created successfully!");
+      router.push("/");
     } catch (error) {
       console.error(error);
       toast.error("Registration failed.");

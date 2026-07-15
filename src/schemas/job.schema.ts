@@ -36,8 +36,8 @@ export const jobSchema = z.object({
   employmentType: z.enum([
     "Full-time",
     "Part-time",
-    "Remote",
-    "Internship",
+    "Contract",
+    "Freelance"
   ]),
 
   minPrice: z

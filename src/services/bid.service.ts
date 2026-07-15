@@ -21,7 +21,7 @@ createBid: async (payload: Bid) => {
 
 getMyBids: async (email: string) => {
   const { data } = await axios.get(
-    `${API}/bids?email=${email}`,
+    `${API}/bids?freelancerEmail=${email}`,
     {
       withCredentials: true,
     }

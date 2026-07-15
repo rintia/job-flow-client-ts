@@ -35,7 +35,7 @@ export default function Hero() {
                             </Link>
 
                             <Link
-                                href="/register"
+                                href="/dashboard/add-job"
                                 className="rounded-xl border border-slate-300 px-6 py-3 font-semibold text-slate-700 transition hover:bg-slate-100"
                             >
                                 Post a Job

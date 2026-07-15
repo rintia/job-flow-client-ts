@@ -1,43 +1,30 @@
+'use client';
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
+
 import Container from "@/components/layout/Container";
 import Card from "@/components/ui/Card";
 
-const jobs = [
-  {
-    id: 1,
-    title: "Senior Frontend Developer",
-    company: "TechNova",
-    location: "Remote",
-    salary: "$2500 - $3500",
-    category: "Web Development",
-  },
-  {
-    id: 2,
-    title: "UI/UX Designer",
-    company: "Pixel Studio",
-    location: "Dhaka",
-    salary: "$1800 - $2500",
-    category: "Design",
-  },
-  {
-    id: 3,
-    title: "Backend Engineer",
-    company: "CloudCore",
-    location: "Hybrid",
-    salary: "$3000 - $4500",
-    category: "Backend",
-  },
-  {
-    id: 4,
-    title: "Digital Marketer",
-    company: "GrowthLab",
-    location: "Remote",
-    salary: "$1500 - $2200",
-    category: "Marketing",
-  },
-];
+import { jobService } from "@/services/job.service";
+import { Job } from "@/types/job";
 
 export default function FeaturedJobs() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+
+  useEffect(() => {
+    const fetchJobs = async () => {
+      try {
+        const data = await jobService.getAllJobs();
+
+        setJobs(data.slice(0, 4));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchJobs();
+  }, []);
   return (
     <section className="py-20">
       <Container>
@@ -53,7 +40,7 @@ export default function FeaturedJobs() {
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
           {jobs.map((job) => (
-            <Card key={job.id}>
+            <Card key={job._id}>
               <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-medium text-blue-700">
                 {job.category}
               </span>
@@ -71,11 +58,11 @@ export default function FeaturedJobs() {
               </p>
 
               <p className="mt-3 font-semibold text-blue-600">
-                {job.salary}
+                ৳{job.minPrice} - ৳{job.maxPrice}
               </p>
 
               <Link
-                href={`/jobs/${job.id}`}
+                href={`/jobs/${job._id}`}
                 className="mt-6 inline-block font-medium text-blue-600 hover:underline"
               >
                 View Details →
